@@ -23,6 +23,16 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 11
+      - name: Install libssl
+            runs-on: ubuntu-latest
+            steps:
+              - uses: actions/checkout@v2
+              - uses: actions-rs/toolchain@v1
+                with:
+                  profile: minimal
+                  toolchain: stable
+                  override: true
+              - run: sudo apt-get install  libssl-dev
       - name: Cache SonarCloud packages
         uses: actions/cache@v1
         with:
@@ -37,10 +47,6 @@ jobs:
           curl -sSLo $HOME/.sonar/sonar-scanner.zip ${{ env.SONAR_SCANNER_DOWNLOAD_URL }} 
           unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
           echo "$HOME/.sonar/sonar-scanner-${{ env.SONAR_SCANNER_VERSION }}-linux/bin" >> $GITHUB_PATH
-      - name: Download libssl-dev
-        run: |
-          sudo apt-get update
-          sudo apt-get install libssl-dev
       - name: Download and set up build-wrapper
         env:
           BUILD_WRAPPER_DOWNLOAD_URL: ${{ env.SONAR_SERVER_URL }}/static/cpp/build-wrapper-linux-x86.zip
