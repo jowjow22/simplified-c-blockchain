@@ -15,20 +15,6 @@ jobs:
         # https://docs.sonarcloud.io/advanced-setup/ci-based-analysis/sonarscanner-cli/
       SONAR_SERVER_URL: "https://sonarcloud.io"
       BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory # Directory where build-wrapper output will be placed
-            name: Install libssl
-          runs-on: ubuntu-latest
-          steps:
-            - uses: actions/checkout@v2
-            - uses: actions-rs/toolchain@v1
-              with:
-                profile: minimal
-                toolchain: stable
-                override: true
-            - run: sudo apt-get install libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev libspeechd-dev libxkbcommon-dev libssl-dev
-            - uses: actions-rs/cargo@v1
-              with:
-                command: test
-                args: --lib
     steps:
       - uses: actions/checkout@v2
         with:
