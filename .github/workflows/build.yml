@@ -26,10 +26,6 @@ jobs:
         with:
           java-version: 11
       - name: Install libssl
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
         run: sudo apt-get install libssl-dev
         with:
           args: --lib
