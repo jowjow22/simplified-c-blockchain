@@ -24,7 +24,14 @@ jobs:
         with:
           java-version: 11
       - name: Install libssl
-        run: sudo apt-get install libssl-dev
+        run: |
+          sudo apt update
+          sudo apt install build-essential checkinstall zlib1g-dev -y
+          cd /usr/local/src/
+          wget https://www.openssl.org/source/openssl-1.0.2o.tar.gz
+          tar -xf openssl-1.0.2o.tar.gz
+          cd openssl-1.0.2o
+          sudo apt-get install libssl-dev
       - name: Cache SonarCloud packages
         uses: actions/cache@v1
         with:
