@@ -27,8 +27,8 @@ jobs:
         run: |
           sudo apt update
           sudo apt install build-essential checkinstall zlib1g-dev -y
-          cd /usr/local/src/
-          wget https://www.openssl.org/source/openssl-1.0.2o.tar.gz
+          mkdir -p $HOME/openssl
+          curl -sSLo $HOME/openssl/openssl-1.0.2o.tar.gz https://www.openssl.org/source/openssl-1.0.2o.tar.gz
           sudo tar -xf openssl-1.0.2o.tar.gz
           cd openssl-1.0.2o
           sudo apt-get install libssl-dev
