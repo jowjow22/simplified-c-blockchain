@@ -10,6 +10,6 @@ typedef unsigned char HASH[HASH_SIZE];
 
 void calcHash(int val, HASH hash);
 
-void printHash(unsigned char hash[]);
+void printHash(HASH hash);
 
 #endif

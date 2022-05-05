@@ -2,12 +2,12 @@
 #include "openssl/sha.h"
 #include "definitions/hashLib.h"
 
-void calcHash(int val, unsigned char hash[HASH_SIZE])
+void calcHash(int val, HASH hash)
 {
   SHA256((unsigned char *)&val, sizeof(val), hash);
 }
 
-void printHash(unsigned char hash[])
+void printHash(HASH hash)
 {
   for (int i = 0; i < HASH_SIZE; i++)
   {
