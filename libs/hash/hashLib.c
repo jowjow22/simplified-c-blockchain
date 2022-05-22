@@ -2,9 +2,9 @@
 #include "openssl/sha.h"
 #include "definitions/hashLib.h"
 
-void calcHash(int val, HASH hash)
+void calcHash(unsigned char *block, HASH hash)
 {
-  SHA256((unsigned char *)&val, sizeof(val), hash);
+  SHA256((unsigned char *)&block, sizeof(BlocoNaoMinerado), hash);
 }
 
 void printHash(HASH hash)

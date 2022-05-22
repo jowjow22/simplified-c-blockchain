@@ -8,7 +8,7 @@
 
 typedef unsigned char HASH[HASH_SIZE];
 
-void calcHash(int val, HASH hash);
+void calcHash(unsigned char *block, HASH hash);
 
 void printHash(HASH hash);
 
