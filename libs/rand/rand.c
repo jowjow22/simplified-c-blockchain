@@ -1,17 +1,21 @@
 #include "definitions/rand.h"
 
+int generateRandNumberBetween(MTRand *randOrigin, int endNumber){
+  return genRand(randOrigin) * endNumber;
+}
+
 unsigned char randTransactionAdressNumber(MTRand *randOrigin)
 {
 
-  return (unsigned char)(genRand(randOrigin) * 1000);
+  return (unsigned char)generateRandNumberBetween(randOrigin, 1000);
 }
 
 unsigned char randBitcoinAmount(MTRand *randOrigin)
 {
-  return (unsigned char)(genRand(randOrigin) * 50);
+  return (unsigned char)generateRandNumberBetween(randOrigin, 50);
 }
 
 int randTransactionsAmount(MTRand *randOrigin)
 {
-  return (int)(genRand(randOrigin) * 61);
+  return (int)generateRandNumberBetween(randOrigin, 61);
 }
