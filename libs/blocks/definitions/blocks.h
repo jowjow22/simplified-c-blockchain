@@ -8,6 +8,7 @@ struct BlocoNaoMinerado
   unsigned char hashAnterior[SHA256_DIGEST_LENGTH]; // 32
 };
 typedef struct BlocoNaoMinerado BlocoNaoMinerado;
+
 struct BlocoMinerado
 {
   BlocoNaoMinerado bloco;
