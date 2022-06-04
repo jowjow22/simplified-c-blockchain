@@ -7,7 +7,7 @@
 typedef struct tagMTRand {
   unsigned long mt[STATE_VECTOR_LENGTH];
   int index;
-} MTRand;
+}MTRand;
 
 MTRand seedRand(unsigned long seed);
 unsigned long genRandLong(MTRand* rand);
