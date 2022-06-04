@@ -3,28 +3,41 @@
 #include <stdlib.h>
 #include "openssl/crypto.h"
 #include "openssl/sha.h"
-#include "../libs/blocks/definitions/blocks.h"
-#include "../libs/hash/hashLib.c"
+#include "../libs/mtwister/mtwister.c"
 #include "../libs/rand/rand.c"
+#include "../libs/blocks/blocks.c"
+#include "../libs/hash/hashLib.c"
+
 
 int main()
 {
   MTRand randOrigin = seedRand(SEED);
-  BlocoNaoMinerado *bloco;
-  bloco = malloc(sizeof(BlocoNaoMinerado));
-  bloco->numero = 0;
-  bloco->nonce = 0;
-  memset(bloco->data, 0, sizeof(bloco->data));
-  memset(bloco->hashAnterior, 0, sizeof(bloco->hashAnterior));
+  int account[255];
+  memset(account, 0, sizeof(account));
+  BlocoMinerado *blocoM = newMinedBlock();
+  BlocoNaoMinerado *bloco = HeadUnminedBlock(); 
 
-  HASH hash;
+  MineBlock(bloco, NULL, blocoM, NULL);
 
-  calcHash((unsigned char *)bloco, hash);
-  printHash(hash);
+  BlocoMinerado *blocoMnovo = newMinedBlock();
+  BlocoNaoMinerado *bloconovo = newUnminedBlock(); 
 
-  for (int i = 0; i < 1000; i++)
-  {
-    printf("%u\n", randBitcoinAmount(&randOrigin));
-  }
+  MineBlock(bloconovo, bloco, blocoMnovo, blocoM->hash);
+  
+  
+  // HASH hash;
+
+  // calcHash((unsigned char *)bloco, hash);
+  // printHash(hash);
+
+  // for (int i = 0; i < 1000; i++)
+  // {
+  //   printf("%u\n", randBitcoinAmount(&randOrigin));
+  // }
+  // for (int i = 0; i < 1000; i++)
+  // {
+  //   printf("%d\n", randTransactionAdressNumber(&randOrigin));
+  // }
+  // printf("tam: %d\n",(int)sizeof(BlocoMinerado));
   return 0;
 }

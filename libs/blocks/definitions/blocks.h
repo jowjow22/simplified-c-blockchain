@@ -1,4 +1,5 @@
-#include "openssl/sha.h"
+#ifndef BLOCKS_H
+#define BLOCKS_H
 
 struct BlocoNaoMinerado
 {
@@ -15,3 +16,13 @@ struct BlocoMinerado
   unsigned char hash[SHA256_DIGEST_LENGTH]; // 32 bytes
 };
 typedef struct BlocoMinerado BlocoMinerado;
+
+BlocoNaoMinerado *HeadUnminedBlock();
+
+BlocoNaoMinerado *NewUnminedBlock();
+
+BlocoMinerado *NewMinedBlock();
+
+void fillRandonUnminedBlock(BlocoNaoMinerado *bloco, BlocoNaoMinerado *blocoAnterior, unsigned char *hashAnterior);
+
+#endif
