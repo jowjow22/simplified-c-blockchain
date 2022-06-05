@@ -1,3 +1,4 @@
+#include "../../hash/definitions/hashLib.h"
 #ifndef BLOCKS_H
 #define BLOCKS_H
 
@@ -17,12 +18,24 @@ struct BlocoMinerado
 };
 typedef struct BlocoMinerado BlocoMinerado;
 
-BlocoNaoMinerado *HeadUnminedBlock();
+struct listOfBLocks
+{
+  BlocoMinerado block;
+  struct listOfBLocks *next;
+};
+typedef struct listOfBLocks listOfBLocks;
 
-BlocoNaoMinerado *NewUnminedBlock();
+struct stackOfBlocks
+{
+  BlocoMinerado *head;
+  struct listOfBLocks *tail;
+};
+typedef struct stackOfBlocks stackOfBlocks;
 
-BlocoMinerado *NewMinedBlock();
+BlocoNaoMinerado *newUnminedBlock(BlocoNaoMinerado *blocoAnterior, unsigned char *hashAnterior, int accountsBalance[255]);
 
-void fillRandonUnminedBlock(BlocoNaoMinerado *bloco, BlocoNaoMinerado *blocoAnterior, unsigned char *hashAnterior);
+BlocoMinerado *createNewMinedBlock(BlocoNaoMinerado bloco, HASH hash);
+
+void fillRandonUnminedBlock(BlocoNaoMinerado *bloco, unsigned char *hashAnterior, int accountsBalance[255]);
 
 #endif

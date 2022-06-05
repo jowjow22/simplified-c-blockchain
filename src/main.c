@@ -8,36 +8,24 @@
 #include "../libs/blocks/blocks.c"
 #include "../libs/hash/hashLib.c"
 
-
 int main()
 {
   MTRand randOrigin = seedRand(SEED);
-  int account[255];
-  memset(account, 0, sizeof(account));
-  BlocoMinerado *blocoM = newMinedBlock();
-  BlocoNaoMinerado *bloco = HeadUnminedBlock(); 
+  int accountsBalance[255];
+  memset(accountsBalance, 0, sizeof(int));
 
-  MineBlock(bloco, NULL, blocoM, NULL);
+  listOfBLocks *chain = NULL;
 
-  BlocoMinerado *blocoMnovo = newMinedBlock();
-  BlocoNaoMinerado *bloconovo = newUnminedBlock(); 
+  stackOfBlocks stack;
 
-  MineBlock(bloconovo, bloco, blocoMnovo, blocoM->hash);
-  
-  
-  // HASH hash;
+  stack.head = NULL;
+  stack.tail = NULL;
 
-  // calcHash((unsigned char *)bloco, hash);
-  // printHash(hash);
+  int blocksToMine = scanf("%d", &blocksToMine);
 
-  // for (int i = 0; i < 1000; i++)
-  // {
-  //   printf("%u\n", randBitcoinAmount(&randOrigin));
-  // }
-  // for (int i = 0; i < 1000; i++)
-  // {
-  //   printf("%d\n", randTransactionAdressNumber(&randOrigin));
-  // }
-  // printf("tam: %d\n",(int)sizeof(BlocoMinerado));
+  mineBlocks(&chain, stack.tail, stack.head, blocksToMine, accountsBalance);
+
+  // printChain(chain);
+
   return 0;
 }
