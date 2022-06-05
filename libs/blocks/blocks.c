@@ -1,46 +1,45 @@
 #include "definitions/blocks.h"
 #include "openssl/sha.h"
 
-BlocoNaoMinerado *HeadUnminedBlock(){
-    BlocoNaoMinerado *bloco = malloc(sizeof(BlocoNaoMinerado));
-    bloco->numero = 0;
-    bloco->nonce = 0;
-    memset(bloco->data, 0, sizeof(bloco->data));
-    memset(bloco->hashAnterior, 0, sizeof(bloco->hashAnterior));
-    return bloco;
-}
-
-BlocoNaoMinerado *NewUnminedBlock(){
-    BlocoNaoMinerado *bloco =
- malloc(sizeof(BlocoNaoMinerado));
-    bloco->numero = 0;
-    bloco->nonce = 0;
-    memset(bloco->data, 0, sizeof(bloco->data));
-    memset(bloco->hashAnterior, 0, sizeof(bloco->hashAnterior));
-    return bloco;
-}
-
-BlocoMinerado *NewMinedBlock(){
-    BlocoMinerado *bloco = malloc(sizeof(BlocoMinerado));
-    return bloco;
-}
-
-void fillRandonUnminedBlock(BlocoNaoMinerado *bloco, BlocoNaoMinerado *blocoAnterior, unsigned char *hashAnterior){
-    bloco->numero = blocoAnterior->numero + 1;
-    MTRand randOrigin = seedRand(1234567);
-
-    for (int i = 0; i < sizeof(bloco->data); i+=3){
-    int destinatario = randTransactionAdressNumber(&randOrigin), remetente = randTransactionAdressNumber(&randOrigin);
-    int bitcoinAmount = randBitcoinAmount(&randOrigin);
-
-    while(destinatario == remetente){
-        destinatario = randTransactionAdressNumber(&randOrigin);
-        remetente = randTransactionAdressNumber(&randOrigin);
+BlocoNaoMinerado *NewUnminedBlock(BlocoMinerado *prevMinedBlock, MTRand *randOrigin)
+{
+    BlocoNaoMinerado *block = (BlocoNaoMinerado *)malloc(sizeof(BlocoNaoMinerado));
+    if (prevMinedBlock != NULL)
+    {
+        block->numero = prevMinedBlock->bloco.numero + 1;
+        block->nonce = 0;
+        memcpy(block->hashAnterior, prevMinedBlock->hash, sizeof(block->hashAnterior));
+        fillRandonUnminedBlockData(block, randOrigin);
     }
-        bloco->data[i] = destinatario;
-        bloco->data[i+1] = remetente;
-        bloco->data[i+2] = bitcoinAmount;
-}
-    memcpy(bloco->hashAnterior, hashAnterior, sizeof(bloco->hashAnterior));
+    else
+    {
+        block->numero = 0;
+        block->nonce = 0;
+        memset(block->hashAnterior, 0, sizeof(block->hashAnterior));
+    }
+    return block;
 }
 
+BlocoMinerado *NewMinedBlock()
+{
+    BlocoMinerado *bloco = (BlocoMinerado *)malloc(sizeof(BlocoMinerado));
+    return bloco;
+}
+
+void fillRandonUnminedBlockData(BlocoNaoMinerado *block, MTRand *randOrigin)
+{
+    for (int i = 0; i < randTransactionsAmount(randOrigin); i += 3)
+    {
+        unsigned char destinatario = randTransactionAdressNumber(randOrigin), remetente = randTransactionAdressNumber(randOrigin);
+        unsigned char bitcoinAmount = randBitcoinAmount(randOrigin);
+
+        while (destinatario == remetente)
+        {
+            destinatario = randTransactionAdressNumber(randOrigin);
+            remetente = randTransactionAdressNumber(randOrigin);
+        }
+        block->data[i] = destinatario;
+        block->data[i + 1] = remetente;
+        block->data[i + 2] = bitcoinAmount;
+    }
+}

@@ -17,12 +17,10 @@ struct BlocoMinerado
 };
 typedef struct BlocoMinerado BlocoMinerado;
 
-BlocoNaoMinerado *HeadUnminedBlock();
-
-BlocoNaoMinerado *NewUnminedBlock();
+BlocoNaoMinerado *NewUnminedBlock(BlocoMinerado *prevMinedBlock, MTRand *randOrigin);
 
 BlocoMinerado *NewMinedBlock();
 
-void fillRandonUnminedBlock(BlocoNaoMinerado *bloco, BlocoNaoMinerado *blocoAnterior, unsigned char *hashAnterior);
+void fillRandonUnminedBlockData(BlocoNaoMinerado *block, MTRand *randOrigin);
 
 #endif

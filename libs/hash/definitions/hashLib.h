@@ -9,6 +9,6 @@ void calcHash(unsigned char *block, HASH hash);
 
 void printHash(HASH hash);
 
-void MineBlock(BlocoNaoMinerado *bloco, BlocoNaoMinerado *blocoAnterior, BlocoMinerado *blocoM, unsigned char *hashAnterior);
+BlocoMinerado *MineBlock(BlocoNaoMinerado *blockToMine);
 
 #endif
