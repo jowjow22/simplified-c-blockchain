@@ -24,17 +24,20 @@ int main()
 
   scanf("%d", &hasFileChain);
 
-  if (hasFileChain)
-  {
-    readLastStoredBlock(&chain, "chain.txt");
-  }
-
-  printChain(chain);
-
   printf("Digite a quantidade de blocos que deseja minerar: \n");
 
   scanf("%d", &blocksAmount);
-  InsertInChain(&chain, &(chain->block), &randOrigin, &blocksAmount, &minedBlocks, chain);
+
+  if (hasFileChain)
+  {
+    Chain *lastBlock = NULL;
+    readLastStoredBlock(&lastBlock, "chain.txt");
+    InsertInChain(&chain, &(lastBlock->block), &randOrigin, &blocksAmount, &minedBlocks, chain, hasFileChain);
+  }
+  else
+  {
+    InsertInChain(&chain, &(chain->block), &randOrigin, &blocksAmount, &minedBlocks, chain, hasFileChain);
+  }
 
   printChain(chain);
 

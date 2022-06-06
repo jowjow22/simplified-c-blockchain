@@ -8,7 +8,8 @@ struct Chain
 };
 typedef struct Chain Chain;
 
-void InsertInChain(Chain **chain, BlocoMinerado *prevMinedBlock, MTRand *randOrigin, int *blocksAmount, int *minedBlocks, Chain *mainChain);
-void storeChain(Chain *chain, char *fileName);
+void InsertInChain(Chain **chain, BlocoMinerado *prevMinedBlock, MTRand *randOrigin, int *blocksAmount, int *minedBlocks, Chain *mainChain, int hasFileChain);
+void readLastStoredBlock(Chain **chain, char *fileName);
+void storeChain(Chain *chain, char *fileName, int hasFileChain);
 
 #endif
