@@ -79,32 +79,32 @@ void printChain(Chain *chain)
 
 void readLastStoredBlock(Chain **chain, char *fileName)
 {
-  FILE *file = fopen(fileName, "rb");
+  FILE *file = fopen(fileName, "r+");
   if (file == NULL)
   {
     *chain = NULL;
     return;
   }
+
+  fseek(file, 0, SEEK_END);
+  fseek(file, ((-sizeof(BlocoMinerado))*2)+175, SEEK_CUR);
+
   BlocoMinerado *block = (BlocoMinerado *)malloc(sizeof(BlocoMinerado));
 
-  fseek(file, 10000000, SEEK_SET);
-
-  fscanf(file, "%d%d", &(block->bloco.numero), &(block->bloco.nonce));
+  fscanf(file, "%d %d", &(block->bloco.numero), &(block->bloco.nonce));
 
   fseek(file, 8, SEEK_CUR);
 
-  for (int i = 0; i < 182; i += 3)
+  for (int i = 0; i < 184; i++)
   {
-    fscanf(file, "%d%d%d", &(block->bloco.data[i]), &(block->bloco.data[i + 1]), &(block->bloco.data[i + 2]));
+    block->bloco.data[i] = (unsigned char)strtol((fgetc(file)), NULL, 10); 
   }
 
-  fseek(file, (sizeof(block->bloco.data) + sizeof(block->bloco.numero) + sizeof(block->bloco.nonce) + 3), SEEK_SET);
+  fseek(file, 8, SEEK_CUR);
   for (int i = 0; i < 32; i++)
   {
     fscanf(file, "%02x", &(block->bloco.hashAnterior[i]));
   }
-
-  fseek(file, (sizeof(block->bloco.data) + sizeof(block->bloco.numero) + sizeof(block->bloco.nonce) + sizeof(block->bloco.hashAnterior) + 31), SEEK_SET);
   for (int i = 0; i < 32; i++)
   {
     fscanf(file, "%02x", &(block->hash[i]));
