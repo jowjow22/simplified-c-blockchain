@@ -17,6 +17,13 @@ struct BlocoMinerado
 };
 typedef struct BlocoMinerado BlocoMinerado;
 
+struct Header
+{
+  int numOfMinedBlocks;
+  int accountsBalance[255];
+};
+typedef struct Header Header;
+
 BlocoNaoMinerado *NewUnminedBlock(BlocoMinerado *prevMinedBlock, MTRand *randOrigin);
 
 BlocoMinerado *NewMinedBlock();

@@ -11,8 +11,8 @@
 
 int main()
 {
-  int account[255];
-  memset(account, 0, sizeof(account));
+  unsigned char account[255];
+  memset(account, 0, sizeof(unsigned char));
 
   MTRand randOrigin = seedRand(SEED);
 
@@ -20,15 +20,23 @@ int main()
 
   Chain *chain = NULL;
 
-  // printf("Deseja Baixar a Chain? (1 - Sim / 0 - Não)\n");
+  printf("Deseja Baixar a Chain? (1 - Sim / 0 - Não)\n");
 
-  // scanf("%d", &hasFileChain);
+  scanf("%d", &hasFileChain);
 
-  // printf("Digite a quantidade de blocos que deseja minerar: \n");
+  if (hasFileChain)
+  {
+    readLastStoredBlock(&chain, "chain.txt");
+  }
 
-  // scanf("%d", &blocksAmount);
+  printChain(chain);
 
+  printf("Digite a quantidade de blocos que deseja minerar: \n");
+
+  scanf("%d", &blocksAmount);
   InsertInChain(&chain, &(chain->block), &randOrigin, &blocksAmount, &minedBlocks, chain);
+
+  printChain(chain);
 
   printf("chain armazenada\n");
 

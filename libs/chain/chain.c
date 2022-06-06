@@ -51,26 +51,94 @@ void printChain(Chain *chain)
   }
 }
 
+// int *readHeader(char *fileName, int blocksAmount)
+// {
+//   Header header;
+//   FILE *file = fopen(fileName, "r");
+//   fgets((char *)&header, sizeof(header), file);
+//   header.numOfMinedBlocks += blocksAmount;
+//   printf("%d\n", header.numOfMinedBlocks);
+//   return header.accountsBalance;
+// }
+
+// void storeHeader(char *fileName, int blocksAmount, unsigned char *accountsBalance)
+// {
+//   Header header;
+//   FILE *file = fopen(fileName, "w");
+
+//   header.numOfMinedBlocks = blocksAmount;
+
+//   fprintf(file, "%d ", header.numOfMinedBlocks);
+//   for (int i = 0; i < 255; i++)
+//   {
+//     fprintf(file, "%d ", header.accountsBalance[i]);
+//   }
+//   fprintf(file, "\n");
+//   fclose(file);
+// }
+
+void readLastStoredBlock(Chain **chain, char *fileName)
+{
+  FILE *file = fopen(fileName, "rb");
+  if (file == NULL)
+  {
+    *chain = NULL;
+    return;
+  }
+  BlocoMinerado *block = (BlocoMinerado *)malloc(sizeof(BlocoMinerado));
+
+  fseek(file, 10000000, SEEK_SET);
+
+  fscanf(file, "%d%d", &(block->bloco.numero), &(block->bloco.nonce));
+
+  fseek(file, 8, SEEK_CUR);
+
+  for (int i = 0; i < 182; i += 3)
+  {
+    fscanf(file, "%d%d%d", &(block->bloco.data[i]), &(block->bloco.data[i + 1]), &(block->bloco.data[i + 2]));
+  }
+
+  fseek(file, (sizeof(block->bloco.data) + sizeof(block->bloco.numero) + sizeof(block->bloco.nonce) + 3), SEEK_SET);
+  for (int i = 0; i < 32; i++)
+  {
+    fscanf(file, "%02x", &(block->bloco.hashAnterior[i]));
+  }
+
+  fseek(file, (sizeof(block->bloco.data) + sizeof(block->bloco.numero) + sizeof(block->bloco.nonce) + sizeof(block->bloco.hashAnterior) + 31), SEEK_SET);
+  for (int i = 0; i < 32; i++)
+  {
+    fscanf(file, "%02x", &(block->hash[i]));
+  }
+
+  fclose(file);
+
+  Chain *newSegment = (Chain *)malloc(sizeof(Chain));
+  newSegment->block = *block;
+  newSegment->next = NULL;
+  *chain = newSegment;
+}
+
 void storeChain(Chain *chain, char *fileName)
 {
-  FILE *file = fopen(fileName, "a");
+  FILE *file = fopen(fileName, "w");
   while (chain != NULL)
   {
-    fprintf(file, "%d %d\n", chain->block.bloco.numero, chain->block.bloco.nonce);
-    for (int i = 0; i < 181; i++)
+    fprintf(file, "%d %d ", chain->block.bloco.numero, chain->block.bloco.nonce);
+    for (int i = 0; i < 183; i++)
     {
-      fprintf(file, "%d ", chain->block.bloco.data[i]);
+      fprintf(file, "%d", chain->block.bloco.data[i]);
     }
-    fprintf(file, "\n");
+    fprintf(file, " ");
     for (int i = 0; i < HASH_SIZE; i++)
     {
       fprintf(file, "%02x", chain->block.bloco.hashAnterior[i]);
     }
-    fprintf(file, "\n");
+    fprintf(file, " ");
     for (int i = 0; i < HASH_SIZE; i++)
     {
       fprintf(file, "%02x", chain->block.hash[i]);
     }
+    fprintf(file, " ");
     if (chain->next != NULL)
     {
       fprintf(file, "\n");

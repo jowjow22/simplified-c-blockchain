@@ -16,6 +16,7 @@ BlocoNaoMinerado *NewUnminedBlock(BlocoMinerado *prevMinedBlock, MTRand *randOri
         block->numero = 0;
         block->nonce = 0;
         memset(block->hashAnterior, 0, sizeof(block->hashAnterior));
+        memset(block->bloco.data, 0, sizeof(block->bloco.data));
     }
     return block;
 }
