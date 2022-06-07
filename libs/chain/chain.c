@@ -1,6 +1,6 @@
 #include "definitions/chain.h"
 
-void InsertInChain(Chain **chain, BlocoMinerado *prevMinedBlock, MTRand *randOrigin, int *blocksAmount, int *minedBlocks, Chain *mainChain, int hasFileChain)
+void InsertInChain(Chain **chain, LastStoredBlockData *prevMinedBlock, int *blocksAmount, int *minedBlocks, Chain *mainChain, int hasFileChain, unsigned char *accountsBalance)
 {
   if (*minedBlocks == 15)
   {
@@ -16,7 +16,15 @@ void InsertInChain(Chain **chain, BlocoMinerado *prevMinedBlock, MTRand *randOri
   else if (*chain == NULL)
   {
     Chain *newSegment = (Chain *)malloc(sizeof(Chain));
-    BlocoNaoMinerado *newBlock = NewUnminedBlock(prevMinedBlock, randOrigin);
+    BlocoNaoMinerado *newBlock;
+    if (prevMinedBlock->number != -1)
+    {
+      newBlock = NewUnminedBlock(prevMinedBlock, accountsBalance);
+    }
+    else
+    {
+      newBlock = NewUnminedBlock(NULL, accountsBalance);
+    }
     BlocoMinerado *minedBlock = MineBlock(newBlock);
     newSegment->block = *minedBlock;
     newSegment->next = NULL;
@@ -25,10 +33,16 @@ void InsertInChain(Chain **chain, BlocoMinerado *prevMinedBlock, MTRand *randOri
     {
       mainChain = *chain;
     }
+    prevMinedBlock->number = newSegment->block.bloco.numero;
+    memcpy(prevMinedBlock->hash, newSegment->block.hash, HASH_SIZE);
   }
   *blocksAmount = *blocksAmount - 1;
   *minedBlocks = *minedBlocks + 1;
-  InsertInChain(&((*chain)->next), &((*chain)->block), randOrigin, blocksAmount, minedBlocks, mainChain, hasFileChain);
+  if (*blocksAmount == 0)
+  {
+    storeHeaderOflastBlock((*chain)->block, accountsBalance);
+  }
+  InsertInChain(&((*chain)->next), prevMinedBlock, blocksAmount, minedBlocks, mainChain, hasFileChain, accountsBalance);
 }
 
 void printChain(Chain *chain)
@@ -51,68 +65,61 @@ void printChain(Chain *chain)
   }
 }
 
-void readLastStoredBlock(Chain **chain, char *fileName)
+void storeHeaderOflastBlock(BlocoMinerado block, unsigned char *accountsBalance)
 {
-  FILE *file = fopen(fileName, "r+");
+  FILE *file = fopen("headers.txt", "w");
+  fseek(file, 0, SEEK_SET);
+  fprintf(file, "%d ", block.bloco.numero);
+  for (int i = 0; i < HASH_SIZE; i++)
+  {
+    fprintf(file, "%02x", block.hash[i]);
+  }
+  fprintf(file, "\n");
+  for (int i = 0; i < 255; i++)
+  {
+    fprintf(file, "%d\n", accountsBalance[i]);
+  }
+  fclose(file);
+}
+LastStoredBlockData *readLastStoredBlockData(unsigned char *accountsBalance)
+{
+  LastStoredBlockData *data = (LastStoredBlockData *)malloc(sizeof(LastStoredBlockData));
+  FILE *file = fopen("headers.txt", "r+");
   if (file == NULL)
   {
-    *chain = NULL;
-    return;
+    data->number = 0;
+    return data;
   }
-
-  fseek(file, -520, SEEK_END);
-
-  BlocoMinerado *block = (BlocoMinerado *)malloc(sizeof(BlocoMinerado));
-
-  fscanf(file, "%d %d", &(block->bloco.numero), &(block->bloco.nonce));
-
-  for (int i = 0; i < 181; i += 3)
+  fscanf(file, "%d", &(data->number));
+  for (int i = 0; i < HASH_SIZE; i++)
   {
-    fscanf(file, "%hhd %hhd %hhd", &(block->bloco.data[i]),&(block->bloco.data[i+1]),&(block->bloco.data[i+2]));
+    fscanf(file, "%02x", &(data->hash[i]));
   }
-  for (int i = 0; i < 32; i++)
+  for (int i = 0; i < 255; i++)
   {
-    fscanf(file, "%02hhx", &(block->bloco.hashAnterior[i]));
+    fscanf(file, "%d", &(accountsBalance[i]));
   }
-  for (int i = 0; i < 32; i++)
-  {
-    fscanf(file, "%02hhx", &(block->hash[i]));
-  }
-
   fclose(file);
-
-  Chain *newSegment = (Chain *)malloc(sizeof(Chain));
-  newSegment->block = *block;
-  newSegment->next = NULL;
-  *chain = newSegment;
+  return data;
 }
 
 void storeChain(Chain *chain, char *fileName, int hasFileChain)
 {
   FILE *file = fopen(fileName, "a");
-  if(hasFileChain){
-    fprintf(file,"\n");
-  }
   while (chain != NULL)
   {
-    fprintf(file, "%d %d ", chain->block.bloco.numero, chain->block.bloco.nonce);
+    fprintf(file, "%d%d", chain->block.bloco.numero, chain->block.bloco.nonce);
     for (int i = 0; i < 183; i++)
     {
-      fprintf(file, "%d ", chain->block.bloco.data[i]);
+      fprintf(file, "%d", chain->block.bloco.data[i]);
     }
     for (int i = 0; i < HASH_SIZE; i++)
     {
       fprintf(file, "%02x", chain->block.bloco.hashAnterior[i]);
     }
-    fprintf(file, " ");
     for (int i = 0; i < HASH_SIZE; i++)
     {
       fprintf(file, "%02x", chain->block.hash[i]);
-    }
-    fprintf(file, " ");
-    if (chain->next != NULL)
-    {
-      fprintf(file, "\n");
     }
     chain = chain->next;
   }

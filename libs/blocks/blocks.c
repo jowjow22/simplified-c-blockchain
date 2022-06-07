@@ -1,15 +1,16 @@
 #include "definitions/blocks.h"
 #include "openssl/sha.h"
 
-BlocoNaoMinerado *NewUnminedBlock(BlocoMinerado *prevMinedBlock, MTRand *randOrigin)
+BlocoNaoMinerado *NewUnminedBlock(LastStoredBlockData *prevMinedBlock, unsigned char *accountsBalance)
 {
     BlocoNaoMinerado *block = (BlocoNaoMinerado *)malloc(sizeof(BlocoNaoMinerado));
     if (prevMinedBlock != NULL)
     {
-        block->numero = prevMinedBlock->bloco.numero + 1;
+        block->numero = prevMinedBlock->number + 1;
         block->nonce = 0;
         memcpy(block->hashAnterior, prevMinedBlock->hash, sizeof(block->hashAnterior));
-        fillRandonUnminedBlockData(block, randOrigin);
+        memset(block->data, 0, sizeof(block->data));
+        fillRandonUnminedBlockData(block, accountsBalance);
     }
     else
     {
@@ -27,20 +28,31 @@ BlocoMinerado *NewMinedBlock()
     return bloco;
 }
 
-void fillRandonUnminedBlockData(BlocoNaoMinerado *block, MTRand *randOrigin)
+void fillRandonUnminedBlockData(BlocoNaoMinerado *block, unsigned char *accountsBalance)
 {
-    for (int i = 0; i < randTransactionsAmount(randOrigin); i += 3)
+    MTRand randOrigin = seedRand(SEED);
+    for (int i = 0; i < randTransactionsAmount(&randOrigin); i += 3)
     {
-        unsigned char destinatario = randTransactionAdressNumber(randOrigin), remetente = randTransactionAdressNumber(randOrigin);
-        unsigned char bitcoinAmount = randBitcoinAmount(randOrigin);
+        unsigned char destinatario = randTransactionAdressNumber(&randOrigin), remetente = randTransactionAdressNumber(&randOrigin);
+        unsigned char bitcoinAmount = randBitcoinAmount(&randOrigin);
 
-        while (destinatario == remetente)
+        while ((destinatario == remetente) || (bitcoinAmount < 1))
         {
-            destinatario = randTransactionAdressNumber(randOrigin);
-            remetente = randTransactionAdressNumber(randOrigin);
+            destinatario = randTransactionAdressNumber(&randOrigin);
+            remetente = randTransactionAdressNumber(&randOrigin);
+            bitcoinAmount = randBitcoinAmount(&randOrigin);
         }
-        block->data[i] = destinatario;
-        block->data[i + 1] = remetente;
+        if (accountsBalance[remetente] < bitcoinAmount)
+        {
+            accountsBalance[remetente] = 0;
+        }
+        else
+        {
+            accountsBalance[remetente] -= bitcoinAmount;
+        }
+        accountsBalance[destinatario] += bitcoinAmount;
+        block->data[i] = remetente;
+        block->data[i + 1] = destinatario;
         block->data[i + 2] = bitcoinAmount;
     }
 }

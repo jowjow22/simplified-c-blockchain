@@ -17,17 +17,17 @@ struct BlocoMinerado
 };
 typedef struct BlocoMinerado BlocoMinerado;
 
-struct Header
+struct LastStoredBlockData
 {
-  int numOfMinedBlocks;
-  int accountsBalance[255];
+  unsigned int number;
+  unsigned char hash[SHA256_DIGEST_LENGTH];
 };
-typedef struct Header Header;
+typedef struct LastStoredBlockData LastStoredBlockData;
 
-BlocoNaoMinerado *NewUnminedBlock(BlocoMinerado *prevMinedBlock, MTRand *randOrigin);
+BlocoNaoMinerado *NewUnminedBlock(LastStoredBlockData *prevMinedBlock, unsigned char *accountsBalance);
 
 BlocoMinerado *NewMinedBlock();
 
-void fillRandonUnminedBlockData(BlocoNaoMinerado *block, MTRand *randOrigin);
+void fillRandonUnminedBlockData(BlocoNaoMinerado *block, unsigned char *accountsBalance);
 
 #endif
