@@ -24,10 +24,10 @@ struct LastStoredBlockData
 };
 typedef struct LastStoredBlockData LastStoredBlockData;
 
-BlocoNaoMinerado *NewUnminedBlock(LastStoredBlockData *prevMinedBlock, unsigned char *accountsBalance);
+BlocoNaoMinerado *NewUnminedBlock(LastStoredBlockData *prevMinedBlock, unsigned char *accountsBalance, MTRand *randOrigin);
 
 BlocoMinerado *NewMinedBlock();
 
-void fillRandonUnminedBlockData(BlocoNaoMinerado *block, unsigned char *accountsBalance);
+void fillRandonUnminedBlockData(BlocoNaoMinerado *block, unsigned char *accountsBalance, MTRand *randOrigin);
 
 #endif

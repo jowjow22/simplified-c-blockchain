@@ -1,7 +1,7 @@
 #include "definitions/blocks.h"
 #include "openssl/sha.h"
 
-BlocoNaoMinerado *NewUnminedBlock(LastStoredBlockData *prevMinedBlock, unsigned char *accountsBalance)
+BlocoNaoMinerado *NewUnminedBlock(LastStoredBlockData *prevMinedBlock, unsigned char *accountsBalance, MTRand *randOrigin)
 {
     BlocoNaoMinerado *block = (BlocoNaoMinerado *)malloc(sizeof(BlocoNaoMinerado));
     if (prevMinedBlock != NULL)
@@ -10,7 +10,7 @@ BlocoNaoMinerado *NewUnminedBlock(LastStoredBlockData *prevMinedBlock, unsigned 
         block->nonce = 0;
         memcpy(block->hashAnterior, prevMinedBlock->hash, sizeof(block->hashAnterior));
         memset(block->data, 0, sizeof(block->data));
-        fillRandonUnminedBlockData(block, accountsBalance);
+        fillRandonUnminedBlockData(block, accountsBalance, randOrigin);
     }
     else
     {
@@ -28,19 +28,19 @@ BlocoMinerado *NewMinedBlock()
     return bloco;
 }
 
-void fillRandonUnminedBlockData(BlocoNaoMinerado *block, unsigned char *accountsBalance)
+void fillRandonUnminedBlockData(BlocoNaoMinerado *block, unsigned char *accountsBalance, MTRand *randOrigin)
 {
-    MTRand randOrigin = seedRand(SEED);
-    for (int i = 0; i < randTransactionsAmount(&randOrigin); i += 3)
+  
+    for (int i = 0; i < randTransactionsAmount(randOrigin); i += 3)
     {
-        unsigned char destinatario = randTransactionAdressNumber(&randOrigin), remetente = randTransactionAdressNumber(&randOrigin);
-        unsigned char bitcoinAmount = randBitcoinAmount(&randOrigin);
+        unsigned char destinatario = randTransactionAdressNumber(randOrigin), remetente = randTransactionAdressNumber(randOrigin);
+        unsigned char bitcoinAmount = randBitcoinAmount(randOrigin);
 
         while ((destinatario == remetente) || (bitcoinAmount < 1))
         {
-            destinatario = randTransactionAdressNumber(&randOrigin);
-            remetente = randTransactionAdressNumber(&randOrigin);
-            bitcoinAmount = randBitcoinAmount(&randOrigin);
+            destinatario = randTransactionAdressNumber(randOrigin);
+            remetente = randTransactionAdressNumber(randOrigin);
+            bitcoinAmount = randBitcoinAmount(randOrigin);
         }
         if (accountsBalance[remetente] < bitcoinAmount)
         {

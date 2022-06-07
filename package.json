@@ -1,5 +1,7 @@
 {
   "scripts": {
+    "start": "cd src && gcc main.c -lcrypto && ./a.out",
+    "test": "cd src && cppcheck main.c",
     "postinstall": "husky install"
   },
   "private": true,

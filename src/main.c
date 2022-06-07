@@ -12,6 +12,7 @@
 int main()
 {
   unsigned char accountsBalance[255];
+  MTRand randOrigin = seedRand(SEED);
   memset(accountsBalance, 0, sizeof(accountsBalance));
 
   int hasFileChain = 0, blocksAmount = 100, minedBlocks = 0;
@@ -31,14 +32,14 @@ int main()
     LastStoredBlockData *lastStoredBlockData = readLastStoredBlockData(accountsBalance);
     if (lastStoredBlockData != NULL)
     {
-      InsertInChain(&chain, lastStoredBlockData, &blocksAmount, &minedBlocks, chain, hasFileChain, accountsBalance);
+      InsertInChain(&chain, lastStoredBlockData, &randOrigin, &blocksAmount, &minedBlocks, chain, hasFileChain, accountsBalance);
     }
   }
   else
   {
     LastStoredBlockData *lastStoredBlockData = (LastStoredBlockData *)malloc(sizeof(LastStoredBlockData));
     lastStoredBlockData->number = -1;
-    InsertInChain(&chain, lastStoredBlockData, &blocksAmount, &minedBlocks, chain, hasFileChain, accountsBalance);
+    InsertInChain(&chain, lastStoredBlockData, &randOrigin, &blocksAmount, &minedBlocks, chain, hasFileChain, accountsBalance);
   }
 
   printChain(chain);

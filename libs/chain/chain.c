@@ -1,6 +1,6 @@
 #include "definitions/chain.h"
 
-void InsertInChain(Chain **chain, LastStoredBlockData *prevMinedBlock, int *blocksAmount, int *minedBlocks, Chain *mainChain, int hasFileChain, unsigned char *accountsBalance)
+void InsertInChain(Chain **chain, LastStoredBlockData *prevMinedBlock, MTRand *randOrigin, int *blocksAmount, int *minedBlocks, Chain *mainChain, int hasFileChain, unsigned char *accountsBalance)
 {
   if (*minedBlocks == 15)
   {
@@ -19,11 +19,11 @@ void InsertInChain(Chain **chain, LastStoredBlockData *prevMinedBlock, int *bloc
     BlocoNaoMinerado *newBlock;
     if (prevMinedBlock->number != -1)
     {
-      newBlock = NewUnminedBlock(prevMinedBlock, accountsBalance);
+      newBlock = NewUnminedBlock(prevMinedBlock, accountsBalance, randOrigin);
     }
     else
     {
-      newBlock = NewUnminedBlock(NULL, accountsBalance);
+      newBlock = NewUnminedBlock(NULL, accountsBalance, randOrigin);
     }
     BlocoMinerado *minedBlock = MineBlock(newBlock);
     newSegment->block = *minedBlock;
@@ -42,7 +42,7 @@ void InsertInChain(Chain **chain, LastStoredBlockData *prevMinedBlock, int *bloc
   {
     storeHeaderOflastBlock((*chain)->block, accountsBalance);
   }
-  InsertInChain(&((*chain)->next), prevMinedBlock, blocksAmount, minedBlocks, mainChain, hasFileChain, accountsBalance);
+  InsertInChain(&((*chain)->next), prevMinedBlock, randOrigin, blocksAmount, minedBlocks, mainChain, hasFileChain, accountsBalance);
 }
 
 void printChain(Chain *chain)
@@ -93,11 +93,11 @@ LastStoredBlockData *readLastStoredBlockData(unsigned char *accountsBalance)
   fscanf(file, "%d", &(data->number));
   for (int i = 0; i < HASH_SIZE; i++)
   {
-    fscanf(file, "%02x", &(data->hash[i]));
+    fscanf(file, "%02hhx", &(data->hash[i]));
   }
   for (int i = 0; i < 255; i++)
   {
-    fscanf(file, "%d", &(accountsBalance[i]));
+    fscanf(file, "%hhd", &(accountsBalance[i]));
   }
   fclose(file);
   return data;
