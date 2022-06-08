@@ -108,19 +108,25 @@ void storeChain(Chain *chain, char *fileName, int hasFileChain)
   FILE *file = fopen(fileName, "a");
   while (chain != NULL)
   {
-    fprintf(file, "%d%d", chain->block.bloco.numero, chain->block.bloco.nonce);
-    for (int i = 0; i < 183; i++)
+    fprintf(file, "%d %d ", chain->block.bloco.numero, chain->block.bloco.nonce);
+    for (int i = 0; i < 181; i += 3)
     {
       fprintf(file, "%d", chain->block.bloco.data[i]);
+      fprintf(file, "%d", chain->block.bloco.data[i + 1]);
+      fprintf(file, "%d", chain->block.bloco.data[i + 2]);
+      fprintf(file, "\n");
     }
+    fprintf(file, "\n");
     for (int i = 0; i < HASH_SIZE; i++)
     {
       fprintf(file, "%02x", chain->block.bloco.hashAnterior[i]);
     }
+    fprintf(file, "\n");
     for (int i = 0; i < HASH_SIZE; i++)
     {
       fprintf(file, "%02x", chain->block.hash[i]);
     }
+    fprintf(file, "\n");
     chain = chain->next;
   }
   fclose(file);
