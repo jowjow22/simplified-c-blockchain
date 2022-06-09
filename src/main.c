@@ -12,15 +12,14 @@
 
 int main()
 {
-  unsigned char accountsBalance[255];
-  MTRand randOrigin = seedRand(SEED);
-  memset(accountsBalance, 0, sizeof(accountsBalance));
+  long int accountsBalance[255];
+  Header *header = readHeaders();
 
   int blocksAmount = 0, minedBlocks = 0, bricksAmount = 0, brickSize, restOfBricks = 0, option;
 
   Chain *chain = NULL;
 
-  LastStoredBlockData *lastStoredBlockData = NULL;
+  BlocoMinerado *lastStoredBlockData = NULL;
 
   do
   {
@@ -54,7 +53,7 @@ int main()
           chain = NULL;
 
           lastStoredBlockData = readLastStoredBlockData(accountsBalance);
-          InsertInChain(&chain, lastStoredBlockData, &randOrigin, &brickSize, &minedBlocks, chain, accountsBalance);
+          InsertInChain(&chain, lastStoredBlockData, &(header->randOrigin), &brickSize, &minedBlocks, chain, header->accountsBalance);
           bricksAmount--;
         }
       }
@@ -66,25 +65,26 @@ int main()
         chain = NULL;
         printf("Minerando blocos...\n");
         lastStoredBlockData = readLastStoredBlockData(accountsBalance);
-        InsertInChain(&chain, lastStoredBlockData, &randOrigin, &restOfBricks, &minedBlocks, chain, accountsBalance);
+        InsertInChain(&chain, lastStoredBlockData, &(header->randOrigin), &restOfBricks, &minedBlocks, chain, header->accountsBalance);
       }
 
       printf("chain armazenada\n");
-      printf("Digite qualquer numeros para continuar\n");
+      printf("Digite quaisquer numeros para continuar\n");
       scanf("%d", &option);
+      header = readHeaders();
       break;
     case 2:
       printf("Digite o endereco que deseja consultar o saldo: \n");
       int address;
       scanf("%d", &address);
-      lastStoredBlockData = readLastStoredBlockData(accountsBalance);
+      memccpy(accountsBalance, header->accountsBalance, sizeof(header->accountsBalance), sizeof(header->accountsBalance));
       cls();
-      printf("Saldo: %d\n", accountsBalance[address]);
-      printf("Digite qualquer numero para continuar\n");
+      printf("Saldo: %ld\n", accountsBalance[address]);
+      printf("Digite quaisquer numeros para continuar\n");
       scanf("%d", &option);
       break;
     case 3:
-      lastStoredBlockData = readLastStoredBlockData(accountsBalance);
+      memccpy(accountsBalance, header->accountsBalance, sizeof(header->accountsBalance), sizeof(header->accountsBalance));
       int addressWithMostBitcoins = 0, max = 0;
       for (int i = 0; i < 255; i++)
       {
@@ -96,13 +96,19 @@ int main()
       }
       cls();
       printf("Endereco com mais bitcoins: %d\n", addressWithMostBitcoins);
-      printf("Digite qualquer numero para continuar\n");
+      printf("Quantidade de bitcoins desse endereco: %d\n", max);
+      printf("Digite quaisquer numeros para continuar\n");
       scanf("%d", &option);
       break;
     case 4:
       printf("Digite o numero do bloco que deseja consultar o hash: \n");
       int blockNumber;
+      BlocoMinerado *block;
       scanf("%d", &blockNumber);
+      block = readBlockData(blockNumber);
+      printMinedBlock(block);
+      printf("Digite quaisquer numeros para continuar\n");
+      scanf("%d", &option);
       break;
     default:
       cls();

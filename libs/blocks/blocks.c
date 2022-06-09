@@ -1,12 +1,12 @@
 #include "definitions/blocks.h"
 #include "openssl/sha.h"
 
-BlocoNaoMinerado *NewUnminedBlock(LastStoredBlockData *prevMinedBlock, unsigned char *accountsBalance, MTRand *randOrigin)
+BlocoNaoMinerado *NewUnminedBlock(BlocoMinerado *prevMinedBlock, long int accountsBalance[], MTRand *randOrigin)
 {
     BlocoNaoMinerado *block = (BlocoNaoMinerado *)malloc(sizeof(BlocoNaoMinerado));
     if (prevMinedBlock != NULL)
     {
-        block->numero = prevMinedBlock->number + 1;
+        block->numero = prevMinedBlock->bloco.numero + 1;
         block->nonce = 0;
         memcpy(block->hashAnterior, prevMinedBlock->hash, sizeof(block->hashAnterior));
         memset(block->data, 0, sizeof(block->data));
@@ -28,9 +28,33 @@ BlocoMinerado *NewMinedBlock()
     return bloco;
 }
 
-void fillRandonUnminedBlockData(BlocoNaoMinerado *block, unsigned char *accountsBalance, MTRand *randOrigin)
+void printHash(HASH hash)
 {
-  
+    for (int i = 0; i < HASH_SIZE; i++)
+    {
+        printf("%02x", hash[i]);
+    }
+    printf("\n");
+}
+
+void printMinedBlock(BlocoMinerado *block)
+{
+    printf("Numero: %d\n", block->bloco.numero);
+    printf("Nonce: %d\n", block->bloco.nonce);
+    printf("Data: \n");
+    for (int i = 0; i < 181; i += 3)
+    {
+        printf("%d %d %d\n", block->bloco.data[i], block->bloco.data[i + 1], block->bloco.data[i + 2]);
+    }
+    printf("Hash anterior: ");
+    printHash(block->bloco.hashAnterior);
+    printf("Hash: ");
+    printHash(block->hash);
+}
+
+void fillRandonUnminedBlockData(BlocoNaoMinerado *block, long int accountsBalance[], MTRand *randOrigin)
+{
+
     for (int i = 0; i < randTransactionsAmount(randOrigin); i += 3)
     {
         unsigned char destinatario = randTransactionAdressNumber(randOrigin), remetente = randTransactionAdressNumber(randOrigin);

@@ -8,10 +8,18 @@ struct Chain
 };
 typedef struct Chain Chain;
 
-void InsertInChain(Chain **chain, LastStoredBlockData *prevMinedBlock, MTRand *randOrigin, int *blocksAmount, int *minedBlocks, Chain *mainChain, unsigned char *accountsBalance);
-void storeChain(Chain *chain, char *fileName);
+struct Header
+{
+  long int accountsBalance[255];
+  long int minedBLocksUntilNow;
+  MTRand randOrigin;
+};
+typedef struct Header Header;
 
-void storeHeaderOflastBlock(BlocoMinerado block, unsigned char *accountsBalance);
-LastStoredBlockData *readLastStoredBlockData();
+void InsertInChain(Chain **chain, BlocoMinerado *prevMinedBlock, MTRand *randOrigin, int *blocksAmount, int *minedBlocks, Chain *mainChain, long int accountsBalance[]);
+void storeChain(Chain *chain, char *fileName, int storeAmount);
+
+void storeHeaders(long int accountsBalance[], MTRand *randOrigin);
+BlocoMinerado *readLastStoredBlockData();
 
 #endif

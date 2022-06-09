@@ -1,23 +1,26 @@
 #include "definitions/chain.h"
 
-void InsertInChain(Chain **chain, LastStoredBlockData *prevMinedBlock, MTRand *randOrigin, int *blocksAmount, int *minedBlocks, Chain *mainChain, unsigned char *accountsBalance)
+void InsertInChain(Chain **chain, BlocoMinerado *prevMinedBlock, MTRand *randOrigin, int *blocksAmount, int *minedBlocks, Chain *mainChain, long int accountsBalance[])
 {
   if (*minedBlocks == 15)
   {
-    storeChain(mainChain, "chain.txt");
+    storeChain(mainChain, "chain.bin", 15);
+    storeHeaders(accountsBalance, randOrigin);
     *minedBlocks = 0;
     mainChain = *chain;
   }
   if (*blocksAmount == 0)
   {
-    storeChain(mainChain, "chain.txt");
+    storeChain(mainChain, "chain.bin", *minedBlocks);
+    storeHeaders(accountsBalance, randOrigin);
+    *minedBlocks = 0;
     return;
   }
   else if (*chain == NULL)
   {
     Chain *newSegment = (Chain *)malloc(sizeof(Chain));
     BlocoNaoMinerado *newBlock;
-    if (prevMinedBlock->number != -1)
+    if (prevMinedBlock->bloco.numero != -1)
     {
       newBlock = NewUnminedBlock(prevMinedBlock, accountsBalance, randOrigin);
     }
@@ -33,15 +36,11 @@ void InsertInChain(Chain **chain, LastStoredBlockData *prevMinedBlock, MTRand *r
     {
       mainChain = *chain;
     }
-    prevMinedBlock->number = newSegment->block.bloco.numero;
+    prevMinedBlock->bloco.numero = newSegment->block.bloco.numero;
     memcpy(prevMinedBlock->hash, newSegment->block.hash, HASH_SIZE);
   }
   *blocksAmount = *blocksAmount - 1;
   *minedBlocks = *minedBlocks + 1;
-  if (*blocksAmount == 0)
-  {
-    storeHeaderOflastBlock((*chain)->block, accountsBalance);
-  }
   InsertInChain(&((*chain)->next), prevMinedBlock, randOrigin, blocksAmount, minedBlocks, mainChain, accountsBalance);
 }
 
@@ -60,79 +59,90 @@ void printChain(Chain *chain)
     printHash(chain->block.bloco.hashAnterior);
     printf("Hash: ");
     printHash(chain->block.hash);
-    printf("\n==============================================\n");
+    printf("\n==============================================\n\n");
     chain = chain->next;
   }
 }
 
-void storeHeaderOflastBlock(BlocoMinerado block, unsigned char *accountsBalance)
+void storeHeaders(long int *accountsBalance, MTRand *randOrigin)
 {
-  FILE *file = fopen("headers.txt", "w");
-  fseek(file, 0, SEEK_SET);
-  fprintf(file, "%d ", block.bloco.numero);
-  for (int i = 0; i < HASH_SIZE; i++)
-  {
-    fprintf(file, "%02x", block.hash[i]);
-  }
-  fprintf(file, "\n");
+  FILE *file = fopen("headers.bin", "wb");
+  Header *header = (Header *)malloc(sizeof(Header));
   for (int i = 0; i < 255; i++)
   {
-    fprintf(file, "%d\n", accountsBalance[i]);
+    header->accountsBalance[i] = accountsBalance[i];
   }
+  header->randOrigin = *randOrigin;
+  header->minedBLocksUntilNow = 0;
+  fwrite(header, sizeof(Header), 1, file);
   fclose(file);
 }
-LastStoredBlockData *readLastStoredBlockData(unsigned char *accountsBalance)
+
+Header *readHeaders()
 {
-  LastStoredBlockData *data = (LastStoredBlockData *)malloc(sizeof(LastStoredBlockData));
+  Header *header = (Header *)malloc(sizeof(Header));
   FILE *file;
-  if (file = fopen("headers.txt", "r"))
+  if (file = fopen("headers.bin", "rb"))
   {
-    fscanf(file, "%d", &(data->number));
-    for (int i = 0; i < HASH_SIZE; i++)
-    {
-      fscanf(file, "%02hhx", &(data->hash[i]));
-    }
-    for (int i = 0; i < 255; i++)
-    {
-      fscanf(file, "%hhd", &(accountsBalance[i]));
-    }
+    fread(header, sizeof(Header), 1, file);
     fclose(file);
   }
   else
   {
-    data->number = -1;
+    header->randOrigin = seedRand(SEED);
+    memset(header->accountsBalance, 0, sizeof(header->accountsBalance));
   }
-  return data;
+  return header;
 }
 
-void searchHashOfBlock(int number, unsigned char *hash)
+BlocoMinerado *readLastStoredBlockData(long int *accountsBalance)
 {
+  BlocoMinerado *lastBlock = (BlocoMinerado *)malloc(sizeof(BlocoMinerado));
   FILE *file;
-  if (file = fopen("chain.txt", "r"))
+  if (file = fopen("chain.bin", "rb"))
   {
-    fseek(file, ((sizeof(BlocoMinerado) * number) + (sizeof(int) * 185)), SEEK_SET);
+    fseek(file, -(sizeof(BlocoMinerado)), SEEK_END);
+    fread(lastBlock, sizeof(BlocoMinerado), 1, file);
+    fclose(file);
   }
+  else
+  {
+    lastBlock->bloco.numero = -1;
+  }
+  return lastBlock;
 }
 
-void storeChain(Chain *chain, char *fileName)
+BlocoMinerado *readBlockData(int numero)
 {
-  FILE *file = fopen(fileName, "a");
-  while (chain != NULL)
+  BlocoMinerado *block = (BlocoMinerado *)malloc(sizeof(BlocoMinerado));
+  FILE *file;
+  if (file = fopen("chain.bin", "rb"))
   {
-    fprintf(file, "%d%d", chain->block.bloco.numero, chain->block.bloco.nonce);
-    for (int i = 0; i < 183; i++)
-    {
-      fprintf(file, "%d", chain->block.bloco.data[i]);
-    }
-    for (int i = 0; i < HASH_SIZE; i++)
-    {
-      fprintf(file, "%02x", chain->block.bloco.hashAnterior[i]);
-    }
-    for (int i = 0; i < HASH_SIZE; i++)
-    {
-      fprintf(file, "%02x", chain->block.hash[i]);
-    }
+    fseek(file, (sizeof(BlocoMinerado) * numero), SEEK_SET);
+    fread(block, sizeof(BlocoMinerado), 1, file);
+    fclose(file);
+  }
+  else
+  {
+    block->bloco.numero = -1;
+  }
+  return block;
+}
+
+void storeChain(Chain *chain, char *fileName, int storeAmount)
+{
+
+  BlocoMinerado *blocks = (BlocoMinerado *)malloc(sizeof(BlocoMinerado) * storeAmount);
+  for (int i = 0; i < storeAmount; i++)
+  {
+    blocks[i] = chain->block;
     chain = chain->next;
   }
+  FILE *file = fopen(fileName, "ab");
+
+  fwrite(blocks, sizeof(BlocoMinerado), storeAmount, file);
+
   fclose(file);
+  free(blocks);
+  blocks = NULL;
 }

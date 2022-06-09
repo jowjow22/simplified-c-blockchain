@@ -1,6 +1,10 @@
 #ifndef BLOCKS_H
 #define BLOCKS_H
 
+#define HASH_SIZE SHA256_DIGEST_LENGTH
+
+typedef unsigned char HASH[HASH_SIZE];
+
 struct BlocoNaoMinerado
 {
   unsigned int numero;                              // 4
@@ -17,17 +21,11 @@ struct BlocoMinerado
 };
 typedef struct BlocoMinerado BlocoMinerado;
 
-struct LastStoredBlockData
-{
-  unsigned int number;
-  unsigned char hash[SHA256_DIGEST_LENGTH];
-};
-typedef struct LastStoredBlockData LastStoredBlockData;
-
-BlocoNaoMinerado *NewUnminedBlock(LastStoredBlockData *prevMinedBlock, unsigned char *accountsBalance, MTRand *randOrigin);
+BlocoNaoMinerado *NewUnminedBlock(BlocoMinerado *prevMinedBlock, long int accountsBalance[], MTRand *randOrigin);
 
 BlocoMinerado *NewMinedBlock();
 
-void fillRandonUnminedBlockData(BlocoNaoMinerado *block, unsigned char *accountsBalance, MTRand *randOrigin);
+void fillRandonUnminedBlockData(BlocoNaoMinerado *block, long int accountsBalance[], MTRand *randOrigin);
+void printMinedBlock(BlocoMinerado *block);
 
 #endif
