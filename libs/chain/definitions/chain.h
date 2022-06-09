@@ -16,10 +16,10 @@ struct Header
 };
 typedef struct Header Header;
 
-void InsertInChain(Chain **chain, BlocoMinerado *prevMinedBlock, MTRand *randOrigin, int *blocksAmount, int *minedBlocks, Chain *mainChain, long int accountsBalance[]);
+void InsertInChain(Chain **chain, BlocoMinerado *prevMinedBlock, MTRand *randOrigin, int *blocksAmount, int *minedBlocks, Chain *mainChain, long int accountsBalance[], long int *minedBlocksUntilNow);
 void storeChain(Chain *chain, char *fileName, int storeAmount);
 
-void storeHeaders(long int accountsBalance[], MTRand *randOrigin);
+void storeHeaders(long int *accountsBalance, MTRand *randOrigin, long int *minedBLocksUntilNow);
 BlocoMinerado *readLastStoredBlockData();
 
 #endif

@@ -28,6 +28,7 @@ int main()
     printf("2 - Buscar Saldo\n");
     printf("3 - Buscar endereco com mais bitcoins\n");
     printf("4 - Buscar hash de um bloco\n");
+    printf("5 - Buscar Saldo de todas as contas\n");
     printf("0 - Sair\n");
     scanf("%d", &option);
     switch (option)
@@ -53,7 +54,7 @@ int main()
           chain = NULL;
 
           lastStoredBlockData = readLastStoredBlockData(accountsBalance);
-          InsertInChain(&chain, lastStoredBlockData, &(header->randOrigin), &brickSize, &minedBlocks, chain, header->accountsBalance);
+          InsertInChain(&chain, lastStoredBlockData, &(header->randOrigin), &brickSize, &minedBlocks, chain, header->accountsBalance, &(header->minedBLocksUntilNow));
           bricksAmount--;
         }
       }
@@ -65,7 +66,7 @@ int main()
         chain = NULL;
         printf("Minerando blocos...\n");
         lastStoredBlockData = readLastStoredBlockData(accountsBalance);
-        InsertInChain(&chain, lastStoredBlockData, &(header->randOrigin), &restOfBricks, &minedBlocks, chain, header->accountsBalance);
+        InsertInChain(&chain, lastStoredBlockData, &(header->randOrigin), &restOfBricks, &minedBlocks, chain, header->accountsBalance, &(header->minedBLocksUntilNow));
       }
 
       printf("chain armazenada\n");
@@ -74,6 +75,7 @@ int main()
       header = readHeaders();
       break;
     case 2:
+      cls();
       printf("Digite o endereco que deseja consultar o saldo: \n");
       int address;
       scanf("%d", &address);
@@ -103,10 +105,34 @@ int main()
     case 4:
       printf("Digite o numero do bloco que deseja consultar o hash: \n");
       int blockNumber;
-      BlocoMinerado *block;
+      header = readHeaders();
+
       scanf("%d", &blockNumber);
-      block = readBlockData(blockNumber);
-      printMinedBlock(block);
+      if (blockNumber > header->minedBLocksUntilNow)
+      {
+        printf("Bloco ainda nao minerado\n");
+        printf("Digite quaisquer numeros para continuar\n");
+        scanf("%d", &option);
+        break;
+      }
+      else
+      {
+        BlocoMinerado *block;
+        block = readBlockData(blockNumber);
+        printMinedBlock(block);
+
+        printf("Digite quaisquer numeros para continuar\n");
+        scanf("%d", &option);
+        break;
+      }
+    case 5:
+      cls();
+      memccpy(accountsBalance, header->accountsBalance, sizeof(header->accountsBalance), sizeof(header->accountsBalance));
+      cls();
+      for (int i = 0; i < 255; i++)
+      {
+        printf("Saldo da conta %d: %ld\n", i, accountsBalance[i]);
+      }
       printf("Digite quaisquer numeros para continuar\n");
       scanf("%d", &option);
       break;

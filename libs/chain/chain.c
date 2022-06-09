@@ -1,18 +1,20 @@
 #include "definitions/chain.h"
 
-void InsertInChain(Chain **chain, BlocoMinerado *prevMinedBlock, MTRand *randOrigin, int *blocksAmount, int *minedBlocks, Chain *mainChain, long int accountsBalance[])
+void InsertInChain(Chain **chain, BlocoMinerado *prevMinedBlock, MTRand *randOrigin, int *blocksAmount, int *minedBlocks, Chain *mainChain, long int accountsBalance[], long int *minedBlocksUntilNow)
 {
   if (*minedBlocks == 15)
   {
     storeChain(mainChain, "chain.bin", 15);
-    storeHeaders(accountsBalance, randOrigin);
+    *minedBlocksUntilNow += 15;
+    storeHeaders(accountsBalance, randOrigin, minedBlocksUntilNow);
     *minedBlocks = 0;
     mainChain = *chain;
   }
   if (*blocksAmount == 0)
   {
     storeChain(mainChain, "chain.bin", *minedBlocks);
-    storeHeaders(accountsBalance, randOrigin);
+    *minedBlocksUntilNow += *minedBlocks;
+    storeHeaders(accountsBalance, randOrigin, minedBlocksUntilNow);
     *minedBlocks = 0;
     return;
   }
@@ -41,7 +43,7 @@ void InsertInChain(Chain **chain, BlocoMinerado *prevMinedBlock, MTRand *randOri
   }
   *blocksAmount = *blocksAmount - 1;
   *minedBlocks = *minedBlocks + 1;
-  InsertInChain(&((*chain)->next), prevMinedBlock, randOrigin, blocksAmount, minedBlocks, mainChain, accountsBalance);
+  InsertInChain(&((*chain)->next), prevMinedBlock, randOrigin, blocksAmount, minedBlocks, mainChain, accountsBalance, minedBlocksUntilNow);
 }
 
 void printChain(Chain *chain)
@@ -64,7 +66,7 @@ void printChain(Chain *chain)
   }
 }
 
-void storeHeaders(long int *accountsBalance, MTRand *randOrigin)
+void storeHeaders(long int *accountsBalance, MTRand *randOrigin, long int *minedBLocksUntilNow)
 {
   FILE *file = fopen("headers.bin", "wb");
   Header *header = (Header *)malloc(sizeof(Header));
@@ -72,8 +74,8 @@ void storeHeaders(long int *accountsBalance, MTRand *randOrigin)
   {
     header->accountsBalance[i] = accountsBalance[i];
   }
+  header->minedBLocksUntilNow = *minedBLocksUntilNow;
   header->randOrigin = *randOrigin;
-  header->minedBLocksUntilNow = 0;
   fwrite(header, sizeof(Header), 1, file);
   fclose(file);
 }
@@ -95,7 +97,7 @@ Header *readHeaders()
   return header;
 }
 
-BlocoMinerado *readLastStoredBlockData(long int *accountsBalance)
+BlocoMinerado *readLastStoredBlockData()
 {
   BlocoMinerado *lastBlock = (BlocoMinerado *)malloc(sizeof(BlocoMinerado));
   FILE *file;
