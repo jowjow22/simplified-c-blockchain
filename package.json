@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "start": "cd src && gcc main.c -lcrypto && ./a.out",
+    "start": "cd src && gcc main.c -lcrypto -lpthread && ./a.out",
     "test": "cd src && cppcheck main.c",
     "postinstall": "husky install"
   },

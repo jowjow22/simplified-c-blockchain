@@ -5,6 +5,7 @@ void InsertInChain(Chain **chain, BlocoMinerado *prevMinedBlock, MTRand *randOri
   if (*minedBlocks == 15)
   {
     storeChain(mainChain, "chain.bin", 15);
+    storeChainText(mainChain);
     *minedBlocksUntilNow += 15;
     storeHeaders(accountsBalance, randOrigin, minedBlocksUntilNow);
     *minedBlocks = 0;
@@ -13,6 +14,7 @@ void InsertInChain(Chain **chain, BlocoMinerado *prevMinedBlock, MTRand *randOri
   if (*blocksAmount == 0)
   {
     storeChain(mainChain, "chain.bin", *minedBlocks);
+    storeChainText(mainChain);
     *minedBlocksUntilNow += *minedBlocks;
     storeHeaders(accountsBalance, randOrigin, minedBlocksUntilNow);
     *minedBlocks = 0;
@@ -147,4 +149,30 @@ void storeChain(Chain *chain, char *fileName, int storeAmount)
   fclose(file);
   free(blocks);
   blocks = NULL;
+}
+
+void storeChainText(Chain *chain)
+{
+  FILE *file = fopen("chain.txt", "a");
+  while (chain != NULL)
+  {
+    fprintf(file, "%d %d\n", chain->block.bloco.numero, chain->block.bloco.nonce);
+    for (int i = 0; i < 181; i += 3)
+    {
+      fprintf(file, "%d %d %d\n", chain->block.bloco.data[i], chain->block.bloco.data[i + 1], chain->block.bloco.data[i + 2]);
+    }
+    for (int i = 0; i < HASH_SIZE; i++)
+    {
+      fprintf(file, "%02x", chain->block.bloco.hashAnterior[i]);
+    }
+    fprintf(file, "\n");
+    for (int i = 0; i < HASH_SIZE; i++)
+    {
+      fprintf(file, "%02x", chain->block.hash[i]);
+    }
+    fprintf(file, "\n");
+    fprintf(file, "\n");
+    chain = chain->next;
+  }
+  fclose(file);
 }

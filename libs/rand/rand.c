@@ -8,7 +8,7 @@ int generateRandNumberBetween(MTRand *randOrigin, int endNumber)
 unsigned char randTransactionAdressNumber(MTRand *randOrigin)
 {
 
-  return (unsigned char)generateRandNumberBetween(randOrigin, 1000);
+  return (unsigned char)generateRandNumberBetween(randOrigin, 255);
 }
 
 unsigned char randBitcoinAmount(MTRand *randOrigin)
@@ -18,5 +18,5 @@ unsigned char randBitcoinAmount(MTRand *randOrigin)
 
 int randTransactionsAmount(MTRand *randOrigin)
 {
-  return (int)generateRandNumberBetween(randOrigin, 181);
+  return (int)generateRandNumberBetween(randOrigin, 61);
 }

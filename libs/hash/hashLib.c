@@ -4,7 +4,7 @@
 
 void calcHash(unsigned char *block, HASH hash)
 {
-  SHA256((unsigned char *)block, sizeof(BlocoNaoMinerado), hash);
+  SHA256(block, sizeof(BlocoNaoMinerado), hash);
 }
 
 BlocoMinerado *MineBlock(BlocoNaoMinerado *blockToMine)
@@ -14,20 +14,20 @@ BlocoMinerado *MineBlock(BlocoNaoMinerado *blockToMine)
   int isMined = 0;
   do
   {
-    if (hash[0] == 0 && hash[1] == 0 && hash[2] == 0 && hash[3] == 0)
+    if (hash[0] == 0 && hash[1] == 0 && hash[2] == 0 && hash[3])
     {
       isMined = 1;
     }
     else
     {
-      blockToMine->nonce += 111;
+      blockToMine->nonce += 1;
       printf("Nonce: %d\n", blockToMine->nonce);
       calcHash((unsigned char *)blockToMine, hash);
     }
   } while (isMined == 0);
   BlocoMinerado *minedBlock = NewMinedBlock();
   minedBlock->bloco = *blockToMine;
-  memccpy(&(minedBlock->hash), &hash, HASH_SIZE, HASH_SIZE);
+  memcpy(minedBlock->hash, hash, sizeof(minedBlock->hash));
 
   return minedBlock;
 }

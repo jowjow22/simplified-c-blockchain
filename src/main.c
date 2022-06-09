@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <pthread.h>
+#include <unistd.h>
 #include "openssl/crypto.h"
 #include "openssl/sha.h"
 #include "../libs/mtwister/mtwister.c"

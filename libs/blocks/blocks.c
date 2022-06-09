@@ -1,5 +1,4 @@
 #include "definitions/blocks.h"
-#include "openssl/sha.h"
 
 BlocoNaoMinerado *NewUnminedBlock(BlocoMinerado *prevMinedBlock, long int accountsBalance[], MTRand *randOrigin)
 {
@@ -55,15 +54,21 @@ void printMinedBlock(BlocoMinerado *block)
 void fillRandonUnminedBlockData(BlocoNaoMinerado *block, long int accountsBalance[], MTRand *randOrigin)
 {
 
-    for (int i = 0; i < randTransactionsAmount(randOrigin); i += 3)
+    unsigned int randomTransactions = randTransactionsAmount(randOrigin);
+    while (randomTransactions == 0)
     {
-        unsigned char destinatario = randTransactionAdressNumber(randOrigin), remetente = randTransactionAdressNumber(randOrigin);
-        unsigned char bitcoinAmount = randBitcoinAmount(randOrigin);
+        randomTransactions = randTransactionsAmount(randOrigin);
+    }
+    for (int i = 0; i < randomTransactions; i += 3)
+    {
+        unsigned char remetente = (randTransactionAdressNumber(randOrigin));
+        unsigned char destinatario = (randTransactionAdressNumber(randOrigin));
+        unsigned char bitcoinAmount = (randBitcoinAmount(randOrigin));
 
-        while ((destinatario == remetente) || (bitcoinAmount < 1))
+        while ((remetente == destinatario) || (bitcoinAmount < 1))
         {
-            destinatario = randTransactionAdressNumber(randOrigin);
             remetente = randTransactionAdressNumber(randOrigin);
+            destinatario = randTransactionAdressNumber(randOrigin);
             bitcoinAmount = randBitcoinAmount(randOrigin);
         }
         if (accountsBalance[remetente] < bitcoinAmount)

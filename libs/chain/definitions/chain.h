@@ -20,6 +20,7 @@ void InsertInChain(Chain **chain, BlocoMinerado *prevMinedBlock, MTRand *randOri
 void storeChain(Chain *chain, char *fileName, int storeAmount);
 
 void storeHeaders(long int *accountsBalance, MTRand *randOrigin, long int *minedBLocksUntilNow);
+void storeChainText(Chain *chain);
 BlocoMinerado *readLastStoredBlockData();
 
 #endif
