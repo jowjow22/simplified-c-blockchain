@@ -24,7 +24,8 @@ void *threadMineration1(void *args)
       printf("Block mined!\n");
       printf("Hash: ");
       printHash(testHash);
-      exit(0);
+      minerationArgs->blockToMine->nonce = i;
+      pthread_exit(NULL);
     }
   }
 }
@@ -40,12 +41,13 @@ void *threadMineration2(void *args)
   {
     blockToMine.nonce = i;
     calcHash((unsigned char *)&(blockToMine), testHash);
-    if (testHash[0] == 0 && testHash[1] == 0)
+    if (testHash[0] == 0 && testHash[1] == 0 && testHash[2] == 0 && testHash[3] == 0)
     {
       printf("Block mined!\n");
       printf("Hash: ");
       printHash(testHash);
-      exit(0);
+      minerationArgs->blockToMine->nonce = i;
+      pthread_exit(NULL);
     }
   }
 }
@@ -76,6 +78,10 @@ BlocoMinerado *MineBlock(BlocoNaoMinerado *blockToMine)
       exit(1);
     }
   }
+
+  calcHash((unsigned char *)blockToMine, hash);
+  memccpy(blockMined->hash, hash, sizeof(hash), sizeof(hash));
+  blockMined->bloco = *blockToMine;
 
   free(minerationArgs);
 
