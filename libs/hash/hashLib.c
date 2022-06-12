@@ -7,27 +7,77 @@ void calcHash(unsigned char *block, HASH hash)
   SHA256(block, sizeof(BlocoNaoMinerado), hash);
 }
 
+void *threadMineration1(void *args)
+{
+  MinerationArgs *minerationArgs = (MinerationArgs *)args;
+  BlocoNaoMinerado blockToMine = *(minerationArgs->blockToMine);
+  HASH testHash;
+
+  unsigned int maxOfThread = 4294967295;
+
+  for (unsigned int i = 0; i < maxOfThread; i += 2)
+  {
+    blockToMine.nonce = i;
+    calcHash((unsigned char *)&(blockToMine), testHash);
+    if (testHash[0] == 0 && testHash[1] == 0 && testHash[2] == 0 && testHash[3] == 0)
+    {
+      printf("Block mined!\n");
+      printf("Hash: ");
+      printHash(testHash);
+      exit(0);
+    }
+  }
+}
+void *threadMineration2(void *args)
+{
+  MinerationArgs *minerationArgs = (MinerationArgs *)args;
+  BlocoNaoMinerado blockToMine = *(minerationArgs->blockToMine);
+  HASH testHash;
+
+  unsigned int maxOfThread = 4294967295;
+
+  for (unsigned int i = 1; i < maxOfThread; i += 2)
+  {
+    blockToMine.nonce = i;
+    calcHash((unsigned char *)&(blockToMine), testHash);
+    if (testHash[0] == 0 && testHash[1] == 0)
+    {
+      printf("Block mined!\n");
+      printf("Hash: ");
+      printHash(testHash);
+      exit(0);
+    }
+  }
+}
+
 BlocoMinerado *MineBlock(BlocoNaoMinerado *blockToMine)
 {
   HASH hash;
   calcHash((unsigned char *)blockToMine, hash);
-  int isMined = 0;
-  do
-  {
-    if (hash[0] == 0 && hash[1] == 0 && hash[2] == 0 && hash[3])
-    {
-      isMined = 1;
-    }
-    else
-    {
-      blockToMine->nonce += 1;
-      printf("Nonce: %d\n", blockToMine->nonce);
-      calcHash((unsigned char *)blockToMine, hash);
-    }
-  } while (isMined == 0);
-  BlocoMinerado *minedBlock = NewMinedBlock();
-  minedBlock->bloco = *blockToMine;
-  memcpy(minedBlock->hash, hash, sizeof(minedBlock->hash));
+  pthread_t threads[2];
+  MinerationArgs *minerationArgs = (MinerationArgs *)malloc(sizeof(MinerationArgs));
+  minerationArgs->blockToMine = blockToMine;
+  BlocoMinerado *blockMined = (BlocoMinerado *)malloc(sizeof(BlocoMinerado));
 
-  return minedBlock;
+  for (int i = 0; i < 2; i++)
+  {
+    if (pthread_create(&threads[i], NULL, threadMineration1, (void *)minerationArgs) != 0)
+    {
+      printf("Erro ao criar thread\n");
+      exit(1);
+    }
+  }
+
+  for (int i = 0; i < 2; i++)
+  {
+    if (pthread_join(threads[i], NULL) != 0)
+    {
+      printf("Erro ao esperar thread\n");
+      exit(1);
+    }
+  }
+
+  free(minerationArgs);
+
+  return blockMined;
 }

@@ -4,11 +4,6 @@
 typedef struct MinerationArgs
 {
   BlocoNaoMinerado *blockToMine;
-  BlocoMinerado *minedBlock;
-  HASH hash;
-  int isMined;
-  int threadId;
-  pthread_mutex_t mutex;
 } MinerationArgs;
 
 void calcHash(unsigned char *block, HASH hash);
