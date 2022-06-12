@@ -13,10 +13,11 @@ BlocoNaoMinerado *NewUnminedBlock(BlocoMinerado *prevMinedBlock, long int accoun
     }
     else
     {
-        block->numero = 0;
+        block->numero = 1;
         block->nonce = 0;
         memset(block->hashAnterior, 0, sizeof(block->hashAnterior));
         memset(block->data, 0, sizeof(block->data));
+        fillRandonUnminedBlockData(block, accountsBalance, randOrigin);
     }
     return block;
 }

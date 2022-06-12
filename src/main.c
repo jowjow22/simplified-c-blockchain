@@ -7,11 +7,12 @@
 #include "openssl/crypto.h"
 #include "openssl/sha.h"
 #include "../libs/mtwister/mtwister.c"
+#include "./utils/cls.c"
 #include "../libs/rand/rand.c"
-#include "../libs/blocks/blocks.c"
+#include "../libs/threadMine/threadMine.c"
 #include "../libs/hash/hashLib.c"
 #include "../libs/chain/chain.c"
-#include "./utils/cls.c"
+
 
 int main()
 {
