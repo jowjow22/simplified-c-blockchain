@@ -19,6 +19,7 @@ void *threadMineration1(void *args)
   {
     blockToMine.nonce = i;
     calcHash((unsigned char *)&(blockToMine), testHash);
+    printf("Thread 1: nonce %d\n", i);
     if (testHash[0] == 0 && testHash[1] == 0 && testHash[2] == 0 && testHash[3] == 0)
     {
       printf("Block mined!\n");
@@ -41,6 +42,7 @@ void *threadMineration2(void *args)
   {
     blockToMine.nonce = i;
     calcHash((unsigned char *)&(blockToMine), testHash);
+    printf("Thread 2: nonce %d\n", i);
     if (testHash[0] == 0 && testHash[1] == 0 && testHash[2] == 0 && testHash[3] == 0)
     {
       printf("Block mined!\n");
@@ -61,22 +63,13 @@ BlocoMinerado *MineBlock(BlocoNaoMinerado *blockToMine)
   minerationArgs->blockToMine = blockToMine;
   BlocoMinerado *blockMined = (BlocoMinerado *)malloc(sizeof(BlocoMinerado));
 
+ 
+  pthread_create(&threads[0], NULL, threadMineration1, (void *)minerationArgs);
+  pthread_create(&threads[1], NULL, threadMineration2, (void *)minerationArgs);  
+  
   for (int i = 0; i < 2; i++)
   {
-    if (pthread_create(&threads[i], NULL, threadMineration1, (void *)minerationArgs) != 0)
-    {
-      printf("Erro ao criar thread\n");
-      exit(1);
-    }
-  }
-
-  for (int i = 0; i < 2; i++)
-  {
-    if (pthread_join(threads[i], NULL) != 0)
-    {
-      printf("Erro ao esperar thread\n");
-      exit(1);
-    }
+      pthread_join(threads[i], NULL);
   }
 
   calcHash((unsigned char *)blockToMine, hash);
