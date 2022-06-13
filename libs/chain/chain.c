@@ -53,7 +53,7 @@ void printChain(Chain *chain)
   while (chain != NULL)
   {
     printf("Numero: %d\n", chain->block.bloco.numero);
-    printf("Nonce: %d\n", chain->block.bloco.nonce);
+    printf("Nonce: %u\n", chain->block.bloco.nonce);
     printf("Data: \n");
     for (int i = 0; i < 181; i += 3)
     {
@@ -156,7 +156,7 @@ void storeChainText(Chain *chain)
   FILE *file = fopen("chain.txt", "a");
   while (chain != NULL)
   {
-    fprintf(file, "%d %d\n", chain->block.bloco.numero, chain->block.bloco.nonce);
+    fprintf(file, "%d %u\n", chain->block.bloco.numero, chain->block.bloco.nonce);
     for (int i = 0; i < 181; i += 3)
     {
       fprintf(file, "%d %d %d\n", chain->block.bloco.data[i], chain->block.bloco.data[i + 1], chain->block.bloco.data[i + 2]);

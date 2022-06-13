@@ -10,7 +10,7 @@ typedef struct MinerationArgs
   unsigned int rangeEnd;
   int threadId;
   int *isMined;
-  int *hasBrokenOverflow;
+  pthread_mutex_t *mutex;
 } MinerationArgs;
 
 void calcHash(unsigned char *block, HASH hash);
