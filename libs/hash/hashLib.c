@@ -15,30 +15,28 @@ BlocoMinerado *MineBlock(BlocoNaoMinerado *blockToMine)
   BlocoMinerado *blockMined = (BlocoMinerado *)malloc(sizeof(BlocoMinerado));
   minerationArgs->isMined = (int*)malloc(sizeof(int));
   *(minerationArgs->isMined) = 0;
+
   minerationArgs->hasBrokenOverflow = (int*)malloc(sizeof(int));
+  *(minerationArgs->hasBrokenOverflow) = 0;
+
+  int i=0;
 
 do{
-for (int i = 0; i < 15; i++) 
+while(i < 15) 
 {
-  if(i != 0){
-  minerationArgs->threadId = i-1;
-  minerationArgs->rangeStart = (i-1) * (286331153);
-  minerationArgs->rangeEnd = i * (286331153);
-  pthread_create(&threads[i], NULL, threadMineration, (void *)minerationArgs);
+  pthread_create(&(threads[i]), NULL, threadMineration, (void *)minerationArgs);
+  minerationArgs->threadId = i;
+  minerationArgs->rangeStart = (unsigned int) i*286331153;
+  minerationArgs->rangeEnd = (unsigned int) (i+1)*286331153;
+  i++;
   }
-  else 
-  {
-    minerationArgs->threadId = i;
-    minerationArgs->rangeStart = 0;
-    minerationArgs->rangeEnd = 286331153;
-    pthread_create(&threads[i], NULL, threadMineration, (void *)minerationArgs);
+ i = 0;
+ while(i < 15) 
+{
+  pthread_join(threads[i], NULL);
+  i++;
   }
-}
 
-  for (int i = 0; i < 15; i++)
-  {
-    pthread_join(threads[i], NULL);
-  }
   if(*(minerationArgs->hasBrokenOverflow) == 1){
     blockToMine->data[183] += 1;
     minerationArgs->blockToMine = blockToMine;

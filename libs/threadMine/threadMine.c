@@ -3,6 +3,7 @@
 void *threadMineration(void *args)
 {
   MinerationArgs *minerationArgs = (MinerationArgs *)args;
+
   BlocoNaoMinerado blockToMine = *(minerationArgs->blockToMine);
   HASH testHash;
 
