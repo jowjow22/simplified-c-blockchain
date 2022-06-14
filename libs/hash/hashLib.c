@@ -20,8 +20,7 @@ BlocoMinerado *MineBlock(BlocoNaoMinerado *blockToMine)
   pthread_t *threads = NULL;
 
   int i = 0;
-  do
-  {
+  
     threads = malloc(sizeof(pthread_t) * 15);
     pthread_mutex_t mutex;
     minerationArgs->mutex = &mutex;
@@ -44,15 +43,28 @@ BlocoMinerado *MineBlock(BlocoNaoMinerado *blockToMine)
     if (hash[0] != 0 || hash[1] != 0 || hash[2] != 0 || hash[3] != 0)
     {
       printf("Block failed mine!\n");
-      blockToMine->data[183] += 1;
-      hasBrokenOverflow = 1;
       printf("Retrying...\n");
       free(threads);
       threads = NULL;
       free(minerationArgs);
+      threads = malloc(sizeof(pthread_t) * 15);
       minerationArgs = (MinerationArgs *)malloc(sizeof(MinerationArgs));
       minerationArgs->blockToMine = blockToMine;
       i = 0;
+      while (i < 15)
+    {
+      pthread_create(&(threads[i]), NULL, threadMineration3, (void *)minerationArgs);
+      minerationArgs->threadId = i;
+      minerationArgs->rangeStart = (unsigned int)i * 286331153;
+      minerationArgs->rangeEnd = (unsigned int)(i + 1) * 286331153;
+      i++;
+    }
+    i = 0;
+    while (i < 15)
+    {
+      pthread_join(threads[i], NULL);
+      i++;
+    }
     }
     else
     {
@@ -62,7 +74,6 @@ BlocoMinerado *MineBlock(BlocoNaoMinerado *blockToMine)
     }
     pthread_mutex_destroy(&mutex);
 
-  } while (hasBrokenOverflow == 1);
 
   calcHash((unsigned char *)blockToMine, hash);
   memccpy(blockMined->hash, hash, sizeof(hash), sizeof(hash));
