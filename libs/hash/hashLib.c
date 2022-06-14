@@ -8,67 +8,80 @@ void calcHash(unsigned char *block, HASH hash)
 BlocoMinerado *MineBlock(BlocoNaoMinerado *blockToMine)
 {
   HASH hash;
-  calcHash((unsigned char *)blockToMine, hash);
-  MinerationArgs *minerationArgs = (MinerationArgs *)malloc(sizeof(MinerationArgs));
-  minerationArgs->blockToMine = blockToMine;
+  MinerationArgs *minerationArgsEven = (MinerationArgs *)malloc(sizeof(MinerationArgs));
+  MinerationArgs *minerationArgsOdd = (MinerationArgs *)malloc(sizeof(MinerationArgs));
+
+  minerationArgsEven->blockToMine = blockToMine;
+  int *isMined = (int *)malloc(sizeof(int));
+  *isMined = 0;
+  minerationArgsEven->isMined = isMined;
+  minerationArgsOdd->isMined = isMined;
+
+  minerationArgsOdd->blockToMine = blockToMine;
+
+  minerationArgsEven->rangeStart = 0;
+  minerationArgsOdd->rangeStart = 1;
+
+  minerationArgsEven->threadId = 0;
+  minerationArgsOdd->threadId = 1;
+
   BlocoMinerado *blockMined = (BlocoMinerado *)malloc(sizeof(BlocoMinerado));
-  minerationArgs->isMined = (int *)malloc(sizeof(int));
-  *(minerationArgs->isMined) = 0;
 
   int hasBrokenOverflow = 0;
 
-  pthread_t *threads = NULL;
-
-  int i = 0;
   do
   {
-    threads = malloc(sizeof(pthread_t) * 15);
-    pthread_mutex_t mutex;
-    minerationArgs->mutex = &mutex;
-    pthread_mutex_init(&mutex, NULL);
-    while (i < 15)
+    if (hasBrokenOverflow == 0)
     {
-      pthread_create(&(threads[i]), NULL, threadMineration, (void *)minerationArgs);
-      minerationArgs->threadId = i;
-      minerationArgs->rangeStart = (unsigned int)i * 286331153;
-      minerationArgs->rangeEnd = (unsigned int)(i + 1) * 286331153;
-      i++;
-    }
-    i = 0;
-    while (i < 15)
-    {
-      pthread_join(threads[i], NULL);
-      i++;
-    }
-    calcHash((unsigned char *)blockToMine, hash);
-    if (hash[0] != 0 || hash[1] != 0 || hash[2] != 0 || hash[3] != 0)
-    {
-      printf("Block failed mine!\n");
-      blockToMine->data[183] += 1;
-      hasBrokenOverflow = 1;
-      printf("Retrying...\n");
-      free(threads);
-      threads = NULL;
-      free(minerationArgs);
-      minerationArgs = (MinerationArgs *)malloc(sizeof(MinerationArgs));
-      minerationArgs->blockToMine = blockToMine;
-      i = 0;
+
+      pthread_t threadEven;
+      pthread_t threadOdd;
+      pthread_create(&threadEven, NULL, threadMinerationComplexity4, (void *)minerationArgsEven);
+      pthread_create(&threadOdd, NULL, threadMinerationComplexity4, (void *)minerationArgsOdd);
+      pthread_join(threadEven, NULL);
+      pthread_join(threadOdd, NULL);
+      calcHash((unsigned char *)blockToMine, hash);
+      if ((hash[0] != 0 || hash[1] != 0 || hash[2] != 0 || hash[3] != 0))
+      {
+        printf("Block failed mine!\n");
+        hasBrokenOverflow = 1;
+        printf("Retrying...\n");
+      }
+      else
+      {
+        printf("Block mined!\n");
+      }
     }
     else
     {
-      hasBrokenOverflow = 0;
-      cls();
-      printf("Block mined!\n");
+      pthread_t threadEven;
+      pthread_t threadOdd;
+      pthread_create(&threadEven, NULL, threadMinerationComplexity3, (void *)minerationArgsEven);
+      pthread_create(&threadOdd, NULL, threadMinerationComplexity3, (void *)minerationArgsOdd);
+      pthread_join(threadEven, NULL);
+      pthread_join(threadOdd, NULL);
+      calcHash((unsigned char *)blockToMine, hash);
+      if ((hash[0] != 0 || hash[1] != 0 || hash[2] != 0))
+      {
+        printf("Block failed mine!\n");
+        hasBrokenOverflow = 1;
+        printf("Retrying...\n");
+      }
+      else
+      {
+        hasBrokenOverflow = 0;
+        printf("Block mined!\n");
+      }
     }
-    pthread_mutex_destroy(&mutex);
-
+    calcHash((unsigned char *)blockToMine, hash);
   } while (hasBrokenOverflow == 1);
 
   calcHash((unsigned char *)blockToMine, hash);
   memccpy(blockMined->hash, hash, sizeof(hash), sizeof(hash));
   blockMined->bloco = *blockToMine;
 
-  free(minerationArgs);
+  free(minerationArgsEven);
+  free(minerationArgsOdd);
 
   return blockMined;
 }

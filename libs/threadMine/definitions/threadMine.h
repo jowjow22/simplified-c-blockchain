@@ -2,12 +2,10 @@
 #define THREADMINE_H
 
 #include "../../blocks/blocks.c"
-
 typedef struct MinerationArgs
 {
   BlocoNaoMinerado *blockToMine;
   unsigned int rangeStart;
-  unsigned int rangeEnd;
   int threadId;
   int *isMined;
   pthread_mutex_t *mutex;
