@@ -4,12 +4,10 @@ void *threadMineration(void *args)
 {
   MinerationArgs *minerationArgs = (MinerationArgs *)args;
 
-  pthread_mutex_lock(minerationArgs->mutex);
   BlocoNaoMinerado blockToMine = *(minerationArgs->blockToMine);
   HASH testHash;
   int id = minerationArgs->threadId;
   unsigned int threadEnd = minerationArgs->rangeEnd, threadStart = minerationArgs->rangeStart;
-  pthread_mutex_unlock(minerationArgs->mutex);
   sleep(1);
   for (unsigned int j = threadStart; j < threadEnd + 1; j++)
   {
@@ -19,9 +17,6 @@ void *threadMineration(void *args)
     {
       *(minerationArgs->isMined) = 1;
       cls();
-      printf("Block mined!\n");
-      printf("Hash: ");
-      printHash(testHash);
       minerationArgs->blockToMine->nonce = j;
       if (*(minerationArgs->isMined) == 1)
       {
@@ -39,12 +34,10 @@ void *threadMineration3(void *args)
 {
   MinerationArgs *minerationArgs = (MinerationArgs *)args;
 
-  pthread_mutex_lock(minerationArgs->mutex);
   BlocoNaoMinerado blockToMine = *(minerationArgs->blockToMine);
   HASH testHash;
   int id = minerationArgs->threadId;
   unsigned int threadEnd = minerationArgs->rangeEnd, threadStart = minerationArgs->rangeStart;
-  pthread_mutex_unlock(minerationArgs->mutex);
   sleep(1);
   for (unsigned int j = threadStart; j < threadEnd + 1; j++)
   {
@@ -54,9 +47,6 @@ void *threadMineration3(void *args)
     {
       *(minerationArgs->isMined) = 1;
       cls();
-      printf("Block mined!\n");
-      printf("Hash: ");
-      printHash(testHash);
       minerationArgs->blockToMine->nonce = j;
       if (*(minerationArgs->isMined) == 1)
       {

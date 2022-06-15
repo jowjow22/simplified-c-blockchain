@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <unistd.h>
-#include <semaphore.h>
 #include "openssl/crypto.h"
 #include "openssl/sha.h"
 #include "../libs/mtwister/mtwister.c"
@@ -12,7 +11,6 @@
 #include "../libs/threadMine/threadMine.c"
 #include "../libs/hash/hashLib.c"
 #include "../libs/chain/chain.c"
-
 
 int main()
 {
