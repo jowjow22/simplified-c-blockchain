@@ -1,14 +1,22 @@
 #ifndef HASHLIB_H
 #define HASHLIB_H
 
-#define HASH_SIZE SHA256_DIGEST_LENGTH
-
-typedef unsigned char HASH[HASH_SIZE];
+typedef struct MinerationArgs
+{
+  BlocoNaoMinerado *blockToMine;
+  unsigned int rangeStart;
+  unsigned int rangeEnd;
+  int threadId;
+} MinerationArgs;
 
 void calcHash(unsigned char *block, HASH hash);
 
+void *threadMineration(void *args);
+
+void *threadMineration3(void *args);
+
 void printHash(HASH hash);
 
-void MineBlock(BlocoNaoMinerado *bloco, BlocoNaoMinerado *blocoAnterior, BlocoMinerado *blocoM, unsigned char *hashAnterior);
+BlocoMinerado *MineBlock(BlocoNaoMinerado *blockToMine);
 
 #endif
