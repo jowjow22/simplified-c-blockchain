@@ -40,7 +40,7 @@ void printHash(HASH hash)
 void printMinedBlock(BlocoMinerado *block)
 {
     printf("Numero: %d\n", block->bloco.numero);
-    printf("Nonce: %d\n", block->bloco.nonce);
+    printf("Nonce: %u\n", block->bloco.nonce);
     printf("Data: \n");
     for (int i = 0; i < 181; i += 3)
     {

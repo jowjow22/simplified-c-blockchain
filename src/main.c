@@ -96,7 +96,7 @@ int main()
       else
       {
         BlocoMinerado *block;
-        block = readBlockData(blockNumber);
+        block = readBlockData(blockNumber - 1);
         printMinedBlock(block);
 
         printf("Digite quaisquer numeros para continuar\n");
