@@ -8,7 +8,7 @@
 #include "../libs/mtwister/mtwister.c"
 #include "./utils/cls.c"
 #include "../libs/rand/rand.c"
-#include "../libs/threadMine/threadMine.c"
+#include "../libs/blocks/blocks.c"
 #include "../libs/hash/hashLib.c"
 #include "../libs/chain/chain.c"
 
@@ -17,7 +17,7 @@ int main()
   long int accountsBalance[255];
   Header *header = readHeaders();
 
-  int blocksAmount = 0, minedBlocks = 0, bricksAmount = 0, brickSize, restOfBricks = 0, option;
+  int blocksAmount = 0, minedBlocks = 0, option;
 
   Chain *chain = NULL;
 
@@ -40,36 +40,12 @@ int main()
 
       scanf("%d", &blocksAmount);
 
-      restOfBricks = blocksAmount % 60000;
-
-      if (blocksAmount >= 60000)
-      {
-
-        bricksAmount = blocksAmount / 60000;
-
-        while (bricksAmount > 0)
-        {
-          cls();
-          printf("Minerando blocos...\n");
-          brickSize = 60000;
-          free(chain);
-          chain = NULL;
-
-          lastStoredBlockData = readLastStoredBlockData(accountsBalance);
-          InsertInChain(&chain, lastStoredBlockData, &(header->randOrigin), &brickSize, &minedBlocks, chain, header->accountsBalance, &(header->minedBLocksUntilNow));
-          bricksAmount--;
-        }
-      }
-
-      if (restOfBricks > 0)
-      {
-        cls();
-        free(chain);
-        chain = NULL;
-        printf("Minerando blocos...\n");
-        lastStoredBlockData = readLastStoredBlockData(accountsBalance);
-        InsertInChain(&chain, lastStoredBlockData, &(header->randOrigin), &restOfBricks, &minedBlocks, chain, header->accountsBalance, &(header->minedBLocksUntilNow));
-      }
+      cls();
+      free(chain);
+      chain = NULL;
+      printf("Minerando blocos...\n");
+      lastStoredBlockData = readLastStoredBlockData(accountsBalance);
+      InsertInChain(&chain, lastStoredBlockData, &(header->randOrigin), &blocksAmount, &minedBlocks, chain, header->accountsBalance, &(header->minedBLocksUntilNow));
 
       printf("chain armazenada\n");
       printf("Digite quaisquer numeros para continuar\n");

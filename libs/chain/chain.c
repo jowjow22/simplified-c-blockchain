@@ -2,11 +2,11 @@
 
 void InsertInChain(Chain **chain, BlocoMinerado *prevMinedBlock, MTRand *randOrigin, int *blocksAmount, int *minedBlocks, Chain *mainChain, long int accountsBalance[], long int *minedBlocksUntilNow)
 {
-  if (*minedBlocks == 15)
+  if (*minedBlocks == 16)
   {
-    storeChain(mainChain, "chain.bin", 15);
+    storeChain(mainChain, "chain.bin", 16);
     storeChainText(mainChain);
-    *minedBlocksUntilNow += 15;
+    *minedBlocksUntilNow += 16;
     storeHeaders(accountsBalance, randOrigin, minedBlocksUntilNow);
     *minedBlocks = 0;
     mainChain = *chain;
